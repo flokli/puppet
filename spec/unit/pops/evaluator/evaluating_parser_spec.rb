@@ -29,6 +29,11 @@ describe 'Puppet::Pops::Evaluator::EvaluatorImpl' do
     @scope = Puppet::Parser::Scope.new(@compiler)
     @scope.source = Puppet::Resource::Type.new(:node, 'node.example.com')
     @scope.parent = @compiler.topscope
+    Puppet.push_context(:loaders => @compiler.loaders)
+  end
+
+  after(:each) do
+    Puppet.pop_context
   end
 
   let(:environment) { Puppet::Node::Environment.create(:testing, []) }
@@ -784,7 +789,7 @@ describe 'Puppet::Pops::Evaluator::EvaluatorImpl' do
       it "[n] gets class parameter [n]" do
         source = "class wonka($produces='chocolate'){ }
            include wonka
-           Class[wonka][produces]"
+           Class[wonka]['produces']"
 
         # This is more complicated since it needs to run like 3.x and do an import_ast
         adapted_parser = Puppet::Parser::E4ParserAdapter.new
